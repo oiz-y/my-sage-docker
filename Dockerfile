@@ -4,4 +4,6 @@ COPY ./src /src
 
 WORKDIR /src
 
-CMD pwd;sh run.sh
+RUN sudo chmod 777 /src/*
+
+CMD pwd;ls -l;sh run.sh
