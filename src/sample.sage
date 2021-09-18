@@ -1,16 +1,18 @@
-import datetime
 import json
 
 
-print('Hello!')
 with open('input.json') as f:
     json_data = json.load(f)
-print(json_data)
+
 num = int(json_data['num'])
-file = open('/src/output.txt', 'w')
+del json_data['num']
+json_data['time'] = {"S": json_data['time']}
+json_data['status'] = {"S": "done"}
+
 if is_prime(num):
-    file.write(f'{num} is prime.\n')
+    json_data['result'] = {"S": "prime"}
 else:
-    file.write(f'{num} is not prime.\n')
-file.write(str(datetime.datetime.now()) + '\n')
-file.close()
+    json_data['result'] = {"S": "not prime"}
+
+with open('output.json', 'w') as f:
+    json.dump(json_data, f)
