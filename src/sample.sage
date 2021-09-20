@@ -5,7 +5,7 @@ with open('input.json') as f:
     json_data = json.load(f)
 
 num = int(json_data['num'])
-del json_data['num']
+json_data['num'] = {"S": json_data['num']}
 json_data['time'] = {"S": json_data['time']}
 json_data['status'] = {"S": "done"}
 
