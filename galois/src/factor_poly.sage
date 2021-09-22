@@ -1,11 +1,34 @@
 import re
 import json
+import boto3
+from boto3.dynamodb.conditions import Key
 
 
 def get_poly():
     with open('input.json') as f:
         json_data = json.load(f)
     return json_data
+
+
+def check_irreducible(poly):
+    R.<x> = PolynomialRing(QQ)
+    f = R(poly)
+    target_group = {}
+    if len(list(f.factor())) > 1:
+        target_group['group'] = {"S": 'not an irreducible polynomial'}
+        target_group['rate'] = {"S": 'not an irreducible polynomial'}
+    return target_group
+
+
+def get_poly_degree(poly):
+    R.<x> = PolynomialRing(QQ)
+    f = R(poly)
+    if len(list(f.factor())) > 1:
+        target_group['group'] = {"S": 'not an irreducible polynomial'}
+        target_group['rate'] = {"S": 'not an irreducible polynomial'}
+    # Type of f.degree() is <class 'sage.rings.integer.Integer'>.
+    return int(f.degree())
+
 
 def factor_poly(poly):
     factor_types = []
@@ -33,13 +56,41 @@ def get_factor_data(factors):
     return factor_dict
 
 
+def query_groups(degree, dynamodb=None):
+    # Not working due to the following error:
+    # botocore.exceptions.NoCredentialsError: Unable to locate credentials
+    if not dynamodb:
+        dynamodb = boto3.resource('dynamodb', region_name='ap-northeast-1')
+
+    table = dynamodb.Table('sage-conjugacy-rate')
+    response = table.query(
+        KeyConditionExpression=Key('degree').eq(degree)
+    )
+    return response['Items']
+
+
+def get_query_result():
+    with open('query_result.json') as f:
+        json_data = json.load(f)
+    return json_data['Items']
+
+
+def convert_format(groups):
+    conj_types = {}
+    for group_dict in groups:
+        # conj_types[group_dict['group_name']] = json.loads(group_dict['conjugacy_rate'])
+        conj_types[group_dict['group_name']['S']] = json.loads(group_dict['conjugacy_rate']['S'])
+    return conj_types
+
+
 def calc_rate(factor_types, conj_type_dict):
     min_average = float('inf')
     target_group = {}
     for group, conj_types in conj_type_dict.items():
         factor_count = {}
         for cycle_type in conj_types:
-            if cycle_type not in factor_types:
+            if (cycle_type not in factor_types and
+                cycle_type.split(',') != ['1'] * len(cycle_type.split(','))):
                 break
             factor_count[cycle_type] = 0
         else:
@@ -77,17 +128,15 @@ def write_json(target_group):
 
 if __name__ == '__main__':
     json_data = get_poly()
-    conj_types = {
-        's3': {
-            '1,1,1': 1,
-            '1,2': 3,
-            '3': 2
-        },
-        'c3': {
-            '1,1,1': 1,
-            '3': 2
-        }
-    }
-    factor_types = factor_poly(json_data['polynomial'])
-    target_group = calc_rate(factor_types, conj_types)
-    write_json(target_group)
+    target_group = check_irreducible(json_data['polynomial'])
+    if target_group:
+        write_json(target_group)
+    else:
+        degree = get_poly_degree(json_data['polynomial'])
+        # The following method will cause NoCredentialsError.
+        # groups = query_groups(degree)
+        groups = get_query_result()
+        conj_types = convert_format(groups)
+        factor_types = factor_poly(json_data['polynomial'])
+        target_group = calc_rate(factor_types, conj_types)
+        write_json(target_group)
