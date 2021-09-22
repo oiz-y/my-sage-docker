@@ -70,6 +70,7 @@ def write_json(target_group):
     json_data['polynomial'] = {"S": json_data['polynomial']}
     json_data['group'] = target_group['group']
     json_data['rate'] = target_group['rate']
+    json_data['status'] = {"S": "done"}
     with open('output.json', 'w') as f:
         json.dump(json_data, f)
 
