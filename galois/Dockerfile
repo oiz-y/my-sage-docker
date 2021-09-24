@@ -1,6 +1,9 @@
 FROM sagemath/sagemath
 
-COPY ./src /src
+COPY ./src/run.sh /src/
+COPY ./src/create_json.py /src/
+COPY ./src/get_degree.sage /src/
+COPY ./src/factor_poly.sage /src/
 
 WORKDIR /src
 
@@ -11,6 +14,8 @@ RUN sudo apt-get update && sudo apt-get install -y \
  && sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
  && sudo unzip awscliv2.zip \
  && sudo ./aws/install -i /usr/local/aws-cli -b /usr/bin \
+ && sudo rm -f awscliv2.zip \
+ && /home/sage/sage/local/bin/pip install boto3 \
  && sudo chmod 777 /src/*
 
 CMD pwd;ls -l;sh run.sh

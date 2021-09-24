@@ -5,7 +5,7 @@ from boto3.dynamodb.conditions import Key
 
 
 def get_poly():
-    with open('input.json') as f:
+    with open('/tmp/input.json') as f:
         json_data = json.load(f)
     return json_data
 
@@ -70,7 +70,7 @@ def query_groups(degree, dynamodb=None):
 
 
 def get_query_result():
-    with open('query_result.json') as f:
+    with open('/tmp/query_result.json') as f:
         json_data = json.load(f)
     return json_data['Items']
 
@@ -122,7 +122,7 @@ def write_json(target_group):
     json_data['group'] = target_group['group']
     json_data['rate'] = target_group['rate']
     json_data['status'] = {"S": "done"}
-    with open('output.json', 'w') as f:
+    with open('/tmp/output.json', 'w') as f:
         json.dump(json_data, f)
 
 
