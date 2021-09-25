@@ -3,6 +3,14 @@ python3 create_json.py
 echo '/tmp/input.json'
 cat /tmp/input.json
 sudo sage get_degree.sage
+if [ -e /tmp/output.json ]; then
+  aws dynamodb put-item \
+    --table-name $table_name \
+    --item file:///tmp/output.json \
+    --region ap-northeast-1 \
+    --return-consumed-capacity TOTAL
+  exit
+fi
 ls -l /tmp
 aws dynamodb query \
   --table-name $conj_table \

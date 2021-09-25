@@ -12,7 +12,10 @@ def get_poly():
 
 def check_irreducible(poly):
     R.<x> = PolynomialRing(QQ)
-    f = R(poly)
+    try:
+        f = R(poly)
+    except Exception as e:
+        print('Exception:', e)
     target_group = {}
     if len(list(f.factor())) > 1:
         target_group['group'] = {"S": 'not an irreducible polynomial'}
