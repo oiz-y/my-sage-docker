@@ -1,4 +1,5 @@
 import re
+import sys
 import json
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -75,6 +76,17 @@ def query_groups(degree, dynamodb=None):
 def get_query_result():
     with open('/tmp/query_result.json') as f:
         json_data = json.load(f)
+    if json_data['Count'] == 0:
+        with open('/tmp/input.json') as f:
+            json_data = json.load(f)
+            json_data['time'] = {"S": json_data['time']}
+            json_data['polynomial'] = {"S": json_data['polynomial']}
+            json_data['group'] = {"S": 'not supported degree'}
+            json_data['rate'] = {"S": 'not supported degree'}
+            json_data['status'] = {"S": "done"}
+        with open('/tmp/output.json', 'w') as f:
+            json.dump(json_data, f)
+            sys.exit()
     return json_data['Items']
 
 
