@@ -27,9 +27,6 @@ def check_irreducible(poly):
 def get_poly_degree(poly):
     R.<x> = PolynomialRing(QQ)
     f = R(poly)
-    if len(list(f.factor())) > 1:
-        target_group['group'] = {"S": 'not an irreducible polynomial'}
-        target_group['rate'] = {"S": 'not an irreducible polynomial'}
     # Type of f.degree() is <class 'sage.rings.integer.Integer'>.
     return int(f.degree())
 
@@ -102,28 +99,30 @@ def calc_rate(factor_types, conj_type_dict):
     target_group = {}
     for group, conj_types in conj_type_dict.items():
         factor_count = {}
+        not_in_count = 0
         for cycle_type in conj_types:
             if (cycle_type not in factor_types and
                 cycle_type.split(',') != ['1'] * len(cycle_type.split(','))):
+                not_in_count += 1
+                continue
+            factor_count[cycle_type] = factor_types.count(cycle_type)
+        if sum(factor_count.values()) < not_in_count:
+            continue
+        for factor_type in factor_types:
+            if factor_type not in conj_types:
                 break
-            factor_count[cycle_type] = 0
         else:
-            for factor_type in factor_types:
-                if factor_type not in conj_types:
-                    break
-                factor_count[factor_type] += 1
-            else:
-                factor_rate = {}
-                for cycle_type, count in factor_count.items():
-                    factor_rate[cycle_type] = float(count / len(factor_types))
-                tmp_average = sum(
-                    [abs(float(factor_rate[cycle_type]) - float(conj_types[cycle_type]))
-                     for cycle_type in factor_types]
-                ) / len(factor_rate)
-                if tmp_average < min_average:
-                    target_group['group'] = {"S": group}
-                    target_group['rate'] = {"S": json.dumps(factor_rate)}
-                    min_average = tmp_average
+            factor_rate = {}
+            for cycle_type, count in factor_count.items():
+                factor_rate[cycle_type] = float(count / len(factor_types))
+            tmp_average = sum(
+                [abs(float(factor_rate[cycle_type]) - float(conj_types[cycle_type]))
+                    for cycle_type in factor_types]
+            ) / len(factor_rate)
+            if tmp_average < min_average:
+                target_group['group'] = {"S": group}
+                target_group['rate'] = {"S": json.dumps(factor_rate)}
+                min_average = tmp_average
     return target_group
 
 
