@@ -18,7 +18,7 @@ def check_irreducible(poly):
     except Exception as e:
         print('Exception:', e)
     target_group = {}
-    if len(list(f.factor())) > 1:
+    if not f.is_irreducible():
         target_group['group'] = {"S": 'not an irreducible polynomial'}
         target_group['rate'] = {"S": 'not an irreducible polynomial'}
     return target_group
