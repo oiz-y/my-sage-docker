@@ -2,7 +2,7 @@ import sys
 import json
 
 with open('/tmp/input.json') as f:
-    json_data = json_data = json.load(f)
+    json_data = json.load(f)
 poly = json_data['polynomial']
 R.<x> = PolynomialRing(QQ)
 try:
@@ -15,6 +15,8 @@ except Exception as e:
         json_data['group'] = {"S": 'Malformed expression polynomial'}
         json_data['rate'] = {"S": 'Malformed expression polynomial'}
         json_data['status'] = {"S": "done"}
+        if 'Calculation Count' in json_data:
+            json_data['calculation count'] = {"N": json_data['Calculation Count']}
         json.dump(json_data, f)
     sys.exit()
 

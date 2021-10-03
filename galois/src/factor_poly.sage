@@ -81,6 +81,8 @@ def get_query_result():
             json_data['group'] = {"S": 'not supported degree'}
             json_data['rate'] = {"S": 'not supported degree'}
             json_data['status'] = {"S": "done"}
+            if 'calculation count' in json_data:
+                json_data['calculation count'] = {"N": json_data['calculation count']}
         with open('/tmp/output.json', 'w') as f:
             json.dump(json_data, f)
             sys.exit()
@@ -133,6 +135,8 @@ def write_json(target_group):
     json_data['group'] = target_group['group']
     json_data['rate'] = target_group['rate']
     json_data['status'] = {"S": "done"}
+    if 'calculation count' in json_data:
+        json_data['calculation count'] = {"N": json_data['calculation count']}
     with open('/tmp/output.json', 'w') as f:
         json.dump(json_data, f)
 
