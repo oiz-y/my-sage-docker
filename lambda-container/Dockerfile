@@ -12,6 +12,9 @@ RUN sudo chmod 777 /var/task
 RUN mkdir /home/sage/.sage
 RUN sudo chmod 777 /home/sage/.sage
 
+RUN sudo apt-get update \
+ && sudo apt-get install -y jq
+
 COPY polynomial_factorization.sage ./polynomial_factorization.sage
 COPY run.sh ./run.sh
 COPY hello.py /tmp/hello.py
