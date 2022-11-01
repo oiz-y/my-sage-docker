@@ -1,5 +1,7 @@
 import sys
 import logging
+from utils import calc_ratio
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -43,10 +45,18 @@ def factor_poly(poly):
 
 def main(event, context):
     polynomial = event['inputPolynomial']
+
     logging.debug(polynomial)
+
     is_irreducible = _check_irreducible(polynomial)
-    factor_dict = factor_poly(polynomial)
-    logging.info(factor_dict)
+
+    if is_irreducible:
+        factor_types = factor_poly(polynomial)
+        ratios = calc_ratio(factor_types)
+    else:
+        pass
+
+    logging.info(ratios)
 
 
 if __name__ == '__main__':
@@ -55,5 +65,7 @@ if __name__ == '__main__':
         'inputPolynomial': args[1],
         'primeRange': args[2]
     }
+
     logging.debug(event)
+
     main(event, '')
