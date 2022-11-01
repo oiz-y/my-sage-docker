@@ -3,6 +3,7 @@
 import os, sys
 from subprocess import call
 import shutil
+import glob
 
 if len(sys.argv) < 2:
     print("You must give a file argument")
@@ -11,7 +12,10 @@ if len(sys.argv) < 2:
 fn = sys.argv[1]
 opts = sys.argv[2:]
 
-shutil.copy(fn, os.path.join('/tmp', fn))
+python_files = glob.glob(os.path.join(os.getcwd(), '*.py'))
+for python_file in python_files:
+    shutil.copy(python_file, '/tmp')
+shutil.copy(fn, '/tmp')
 fn = os.path.join('/tmp', fn)
 
 
