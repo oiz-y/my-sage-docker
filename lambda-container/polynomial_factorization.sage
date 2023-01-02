@@ -2,10 +2,12 @@ import sys
 import json
 import logging
 from utils import calc_ratio
-from dynamodb_operation import get_group_data
+from dynamodb_operation import (
+    get_group_data,
+    put_group_data
+)
 
-
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def _check_irreducible(poly):
@@ -56,15 +58,20 @@ def get_target_group(ratios, group_datas):
 
     for group_data in group_datas:
         conjugacy_ratios = json.loads(group_data['conjugacy_rate'])
-        for cycle_type, conjugacy_ratio in conjugacy_ratios.items():
+        conjugacy_types = set(conjugacy_ratios)
+        is_continue = false
+
+        for factor_type in factor_types:
             if (
-                cycle_type not in factor_types and
-                cycle_type.split(',') != ['1'] * len(cycle_type.split(','))
+                factor_type not in conjugacy_types and
+                factor_type.split(',') == ['1'] * len(factor_type.split(','))
             ):
                 continue
+            if factor_type not in conjugacy_types:
+                is_continue = true
 
-            if cycle_type not in factor_types:
-                break
+        if is_continue:
+            continue
 
         tmp_average = sum(
             [
@@ -83,9 +90,11 @@ def get_target_group(ratios, group_datas):
 def main(event, context):
     polynomial = event['inputPolynomial']
 
-    logging.debug(polynomial)
+    logging.info(polynomial)
 
     is_irreducible = _check_irreducible(polynomial)
+
+    logging.info(is_irreducible)
 
     if is_irreducible:
         factor_types = factor_poly(polynomial)
@@ -102,13 +111,20 @@ def main(event, context):
 
     logging.info(target_group)
 
+    _id = event['id']
+
+    logging.info(_id)
+
+    put_group_data(_id, target_group)
+
 
 if __name__ == '__main__':
     args = sys.argv
+    print(args)
     event = {
         'inputPolynomial': args[1],
-        'primeRange': args[2]
+        'primeRange': args[2],
+        'id': args[3]
     }
-    logging.debug(event)
+    logging.info(event)
     main(event, '')
-
