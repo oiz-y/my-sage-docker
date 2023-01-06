@@ -99,15 +99,14 @@ def main(event, context):
     if is_irreducible:
         factor_types = factor_poly(polynomial)
         ratios = calc_ratio(factor_types)
+        logging.info(ratios)
+
+        degree = _get_poly_degree(polynomial)
+        group_datas = get_group_data(degree)
+
+        target_group = get_target_group(ratios, group_datas)
     else:
-        pass
-
-    logging.info(ratios)
-
-    degree = _get_poly_degree(polynomial)
-    group_datas = get_group_data(degree)
-
-    target_group = get_target_group(ratios, group_datas)
+        target_group = 'not irreducible'
 
     logging.info(target_group)
 
